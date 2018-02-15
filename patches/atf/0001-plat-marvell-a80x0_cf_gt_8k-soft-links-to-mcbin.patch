@@ -1,0 +1,25 @@
+From a4b1a864af5e53e5193f7bcb82951e54efee29b2 Mon Sep 17 00:00:00 2001
+From: Rabeeh Khoury <rabeeh@solid-run.com>
+Date: Mon, 12 Feb 2018 16:18:33 +0200
+Subject: [PATCH] plat/marvell: a80x0_cf_gt_8k: soft links to mcbin
+
+SolidRun ClearFog GT 8K platform ATF is similar to MCBin when
+it comes to DDR intiialization, SPD I2C.
+
+Signed-off-by: Rabeeh Khoury <rabeeh@solid-run.com>
+---
+ plat/marvell/a8k/a80x0_cf_gt_8k |    1 +
+ 1 file changed, 1 insertion(+)
+ create mode 120000 plat/marvell/a8k/a80x0_cf_gt_8k
+
+diff --git a/plat/marvell/a8k/a80x0_cf_gt_8k b/plat/marvell/a8k/a80x0_cf_gt_8k
+new file mode 120000
+index 0000000..a1d9362
+--- /dev/null
++++ b/plat/marvell/a8k/a80x0_cf_gt_8k
+@@ -0,0 +1 @@
++a80x0_mcbin
+\ No newline at end of file
+-- 
+1.7.9.5
+

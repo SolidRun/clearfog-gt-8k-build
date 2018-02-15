@@ -1,0 +1,50 @@
+From ad10505c0872501be705f7c43f18e128badf8bc0 Mon Sep 17 00:00:00 2001
+From: Rabeeh Khoury <rabeeh@solid-run.com>
+Date: Mon, 12 Feb 2018 14:56:24 +0200
+Subject: [PATCH] mvebu: modify bootcmd to load env from external media
+
+Try loading env variables from differernt external media.
+This way the external environment variables define the env variable 'uenvcmd'
+then it is ran after importing the env variables.
+
+With this method the user can have his own uenv.txt on external media and custom
+boot the machine without modifying any u-boot environment variables.
+
+The scan sequence is mmc1 then mmc0 and then usb 0, each time tries to load the
+file /uenv.txt from ext4 or fat volume.
+
+Signed-off-by: Rabeeh Khoury <rabeeh@solid-run.com>
+---
+ include/configs/mvebu_armada-common.h |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index f085a49..79b47f4 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -68,9 +68,19 @@
+ 						"$gatewayip:$netmask:$hostname"\
+ 						":$netdev:none nfsroot="\
+ 						"$serverip:$rootpath " \
+-						"$extra_params"
+-#define CONFIG_BOOTCOMMAND	"run get_images; run set_bootargs; " \
+-				"booti $kernel_addr $ramfs_addr $fdt_addr"
++						"$extra_params\0" \
++					"get_env=mw 0x01700000 0 0x1000; "\
++					"fatload mmc 1:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						"ext4load mmc 1:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						" fatload mmc 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						" ext4load mmc 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						"usb start; "\
++						" fatload usb 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						" ext4load usb 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; "\
++						" fi;fi;fi;fi;fi;fi; if test \"${uenvcmd}\" != \"\"; then run uenvcmd; fi"
++#define CONFIG_BOOTCOMMAND		"run get_env; run get_images; run set_bootargs; " \
++					"booti $kernel_addr $ramfs_addr $fdt_addr"
++
+ #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+ /*
+  * For booting Linux, the board info and command line data
+-- 
+1.7.9.5
+
