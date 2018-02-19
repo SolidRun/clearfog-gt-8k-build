@@ -1,5 +1,17 @@
 #!/bin/bash
 
+
+echo "Checking all required tools are installed"
+TOOLS="wget tar git make 7z unsquashfs dd vim mkfs.ext4 sudo parted mkdosfs mcopy"
+
+for i in $TOOLS; do
+	TOOL_PATH=`which $i`
+	if [ "x$TOOL_PATH" == "x" ]; then
+		echo "Tool $i is not installed"
+		exit -1
+	fi
+done
+
 ROOTDIR=`pwd`
 if [[ ! -d $ROOTDIR/build/toolchain ]]; then
 	mkdir -p $ROOTDIR/build/toolchain
