@@ -77,6 +77,7 @@ fi
 echo "Building kernel"
 cd $ROOTDIR/build/linux-marvell
 make mvebu_v8_lsp_defconfig
+./scripts/kconfig/merge_config.sh .config $ROOTDIR/configs/extra.config
 make
 if [ $? != 0 ]; then
 	echo "Error building kernel"
