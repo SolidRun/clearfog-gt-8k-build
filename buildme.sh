@@ -60,12 +60,34 @@ if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
 	git checkout -b mv_ddr-armada-17.10 origin/mv_ddr-armada-17.10
 fi
 
+if [[ ! -d $ROOTDIR/build/buildroot ]]; then
+	cd $ROOTDIR/build
+	git clone https://github.com/buildroot/buildroot.git
+fi
+
 if [[ ! -d $ROOTDIR/build/linux-marvell ]]; then
 	cd $ROOTDIR/build/
 	git clone https://github.com/MarvellEmbeddedProcessors/linux-marvell
 	cd linux-marvell
 	git checkout linux-4.4.52-armada-17.10
 	git am $ROOTDIR/patches/kernel/*
+fi
+if [[ ! -d $ROOTDIR/build/ubuntu-16.04 ]]; then
+	cd $ROOTDIR/build/
+	mkdir -p ubuntu-16.04
+	cd ubuntu-16.04
+	wget http://cdimage.ubuntu.com/releases/16.04.3/release/ubuntu-16.04.3-server-arm64.iso
+	7z x ubuntu-16.04.3-server-arm64.iso install/filesystem.squashfs
+	# The following command requires sudo... sorry
+	sudo unsquashfs -d temp/ install/filesystem.squashfs
+	# Manuall remove the 'x' from the root passwd
+	sudo vim temp/etc/passwd
+	# Create a sparse 1GB file
+	sudo dd if=/dev/zero of=ext4.part bs=1 count=0 seek=300M
+	sudo mkfs.ext4 ext4.part
+	sudo mount -o loop ext4.part /mnt/
+	sudo cp -a temp/* /mnt/
+	sudo umount /mnt/
 fi
 
 echo "Building u-boot"
@@ -90,9 +112,18 @@ echo "Building kernel"
 cd $ROOTDIR/build/linux-marvell
 make mvebu_v8_lsp_defconfig
 ./scripts/kconfig/merge_config.sh .config $ROOTDIR/configs/extra.config
-make
+make -j4
 if [ $? != 0 ]; then
 	echo "Error building kernel"
+	exit -1
+fi
+
+echo "Building buildroot"
+cd $ROOTDIR/build/buildroot/
+cp $ROOTDIR/configs/buildroot.config .config
+# make # For now do not build buildroot.
+if [ $? != 0 ]; then
+	echo "Error building buildroot"
 	exit -1
 fi
 
@@ -102,4 +133,23 @@ mkdir -p images
 cp build/bootloader/atf-marvell/build/a80x0_cf_gt_8k/release/flash-image.bin images/
 cp build/linux-marvell/arch/arm64/boot/Image images/
 cp build/linux-marvell/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dtb images/
+cd build/linux-marvell/; make INSTALL_MOD_PATH=$ROOTDIR/images/modules/ modules_install
+cd $ROOTDIR/
+cp build/buildroot/output/images/rootfs.cpio.uboot images
+
+echo "Creating partitions and images"
+dd if=/dev/zero of=images/disk.img bs=1M count=401
+parted --script images/disk.img mklabel msdos mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
+#parted --script images/disk.img mklabel gpt mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
+dd if=/dev/zero of=images/boot.part bs=1M count=99
+mkdosfs images/boot.part
+mcopy -i images/boot.part images/Image ::/Image
+mcopy -i images/boot.part images/armada-8040-clearfog-gt-8k.dtb ::/armada-8040-clearfog-gt-8k.dtb
+cd images/modules/; tar c lib > $ROOTDIR/images/modules.tar; cd -
+mcopy -i images/boot.part images/modules.tar ::/modules.tar
+dd if=images/boot.part of=images/disk.img bs=1M seek=1 conv=notrunc
+dd if=build/ubuntu-16.04/ext4.part of=images/disk.img bs=512 seek=204800 conv=notrunc
+
+
+#boot_ssd=scsi reset; setenv bootargs console=ttyS0,115200 root=/dev/sda2 rw; fatload scsi 0:1 0x02000000 /Image; fatload scsi 0:1 0x01800000 armada-8040-clearfog-gt-8k.dtb; booti 0x02000000 - 0x01800000
 
