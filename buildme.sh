@@ -145,8 +145,8 @@ dd if=/dev/zero of=images/boot.part bs=1M count=99
 mkdosfs images/boot.part
 mcopy -i images/boot.part images/Image ::/Image
 mcopy -i images/boot.part images/armada-8040-clearfog-gt-8k.dtb ::/armada-8040-clearfog-gt-8k.dtb
-cd images/modules/; tar c lib > $ROOTDIR/images/modules.tar; cd -
-mcopy -i images/boot.part images/modules.tar ::/modules.tar
+cd images/modules/; tar Jc lib > $ROOTDIR/images/modules.tar.xz; cd -
+mcopy -i images/boot.part images/modules.tar.xz ::/modules.tar.xz
 dd if=images/boot.part of=images/disk.img bs=1M seek=1 conv=notrunc
 dd if=build/ubuntu-16.04/ext4.part of=images/disk.img bs=512 seek=204800 conv=notrunc
 
