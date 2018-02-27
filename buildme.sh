@@ -2,7 +2,7 @@
 
 
 echo "Checking all required tools are installed"
-TOOLS="wget tar git make 7z unsquashfs dd vim mkfs.ext4 sudo parted mkdosfs mcopy"
+TOOLS="wget tar git make 7z unsquashfs dd vim mkfs.ext4 sudo parted mkdosfs mcopy dtc"
 
 for i in $TOOLS; do
 	TOOL_PATH=`which $i`
@@ -72,11 +72,14 @@ if [[ ! -d $ROOTDIR/build/linux-marvell ]]; then
 	git checkout linux-4.4.52-armada-17.10
 	git am $ROOTDIR/patches/kernel/*
 fi
-if [[ ! -d $ROOTDIR/build/ubuntu-16.04 ]]; then
+if [[ ! -f $ROOTDIR/build/ubuntu-16.04/ext4.part ]]; then
 	cd $ROOTDIR/build/
 	mkdir -p ubuntu-16.04
 	cd ubuntu-16.04
-	wget http://cdimage.ubuntu.com/releases/16.04.3/release/ubuntu-16.04.3-server-arm64.iso
+	if [[ ! -f ubuntu-16.04.3-server-arm64.iso ]]; then
+		wget http://cdimage.ubuntu.com/releases/16.04.3/release/ubuntu-16.04.3-server-arm64.iso
+	fi
+	rm -rf install/filesystem.squashfs
 	7z x ubuntu-16.04.3-server-arm64.iso install/filesystem.squashfs
 	# The following command requires sudo... sorry
 	sudo unsquashfs -d temp/ install/filesystem.squashfs
