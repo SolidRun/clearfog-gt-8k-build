@@ -33,7 +33,7 @@ index f085a49..79b47f4 100644
 +					"get_env=mw 0x01700000 0 0x1000; "\
 +					"fatload mmc 1:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
 +						"ext4load mmc 1:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
-+						" fatload mmc 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
++						" fatload mmc 1:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
 +						" ext4load mmc 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
 +						"usb start; "\
 +						" fatload usb 0:1 0x01700000 /uenv.txt; if test \"$?\" = \"0\"; then env import -t 0x01700000; else "\
