@@ -87,7 +87,7 @@ if [[ ! -f $ROOTDIR/build/ubuntu-16.04/ext4.part ]]; then
 	sudo vim temp/etc/passwd
 	# Create a sparse 1GB file
 	sudo dd if=/dev/zero of=ext4.part bs=1 count=0 seek=300M
-	sudo mkfs.ext4 ext4.part
+	sudo mkfs.ext4 -b 4096 ext4.part
 	sudo mount -o loop ext4.part /mnt/
 	sudo cp -a temp/* /mnt/
 	sudo umount /mnt/
@@ -145,14 +145,23 @@ dd if=/dev/zero of=images/disk.img bs=1M count=401
 parted --script images/disk.img mklabel msdos mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
 #parted --script images/disk.img mklabel gpt mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
 dd if=/dev/zero of=images/boot.part bs=1M count=99
+
+# Start with boot partition
 mkdosfs images/boot.part
 mcopy -i images/boot.part images/Image ::/Image
 mcopy -i images/boot.part images/armada-8040-clearfog-gt-8k.dtb ::/armada-8040-clearfog-gt-8k.dtb
 cd images/modules/; tar Jc lib > $ROOTDIR/images/modules.tar.xz; cd -
 mcopy -i images/boot.part images/modules.tar.xz ::/modules.tar.xz
+# Create a uenv.txt for the boot partition
+cat > images/uenv.txt <<EOF
+bootargs=console=ttyS0,115200 root=/dev/sda2 rw
+uenvcmd=fatload scsi 0:1 0x02000000 Image; fatload scsi 0:1 0x01800000 armada-8040-clearfog-gt-8k.dtb; booti 0x02000000 - 0x01800000
+EOF
+mcopy -i images/boot.part images/uenv.txt ::/uenv.txt
 dd if=images/boot.part of=images/disk.img bs=1M seek=1 conv=notrunc
-dd if=build/ubuntu-16.04/ext4.part of=images/disk.img bs=512 seek=204800 conv=notrunc
 
+#Copy over the rootfs partition
+dd if=build/ubuntu-16.04/ext4.part of=images/disk.img bs=512 seek=204800 conv=notrunc
 
 #boot_ssd=scsi reset; setenv bootargs console=ttyS0,115200 root=/dev/sda2 rw; fatload scsi 0:1 0x02000000 /Image; fatload scsi 0:1 0x01800000 armada-8040-clearfog-gt-8k.dtb; booti 0x02000000 - 0x01800000
 
