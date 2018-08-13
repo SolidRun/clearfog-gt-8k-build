@@ -36,9 +36,9 @@ index c406a7aa1b0b..f085a49f9ddf 100644
  #elif defined(CONFIG_MVEBU_MMC_BOOT)
  #define CONFIG_ENV_IS_IN_MMC
 -#define CONFIG_SYS_MMC_ENV_PART		1 /* 0 - DATA, 1 - BOOT0, 2 - BOOT1 */
- #endif
- 
- /* Assume minimum flash/eMMC boot partition size of 4MB
+ /* Environment in SPI NAND flash */
+ #elif defined(CONFIG_MVEBU_SPINAND_BOOT)
+ #define CONFIG_ENV_IS_IN_SPI_NAND
 -- 
 2.15.1
 
