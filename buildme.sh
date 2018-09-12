@@ -141,6 +141,7 @@ cd $ROOTDIR/
 cp build/buildroot/output/images/rootfs.cpio.uboot images
 
 echo "Creating partitions and images"
+dd if=images/flash-image.bin of=images/microsd.img bs=512 seek=1
 dd if=/dev/zero of=images/disk.img bs=1M count=401
 parted --script images/disk.img mklabel msdos mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
 #parted --script images/disk.img mklabel gpt mkpart primary 1MiB 100MiB mkpart primary 100MiB 400MiB
