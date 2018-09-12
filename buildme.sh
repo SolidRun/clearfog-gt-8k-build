@@ -76,11 +76,11 @@ if [[ ! -f $ROOTDIR/build/ubuntu-16.04/ext4.part ]]; then
 	cd $ROOTDIR/build/
 	mkdir -p ubuntu-16.04
 	cd ubuntu-16.04
-	if [[ ! -f ubuntu-16.04.3-server-arm64.iso ]]; then
-		wget http://cdimage.ubuntu.com/releases/16.04.3/release/ubuntu-16.04.3-server-arm64.iso
+	if [[ ! -f ubuntu-16.04.5-server-arm64.iso ]]; then
+		wget http://cdimage.ubuntu.com/releases/16.04.5/release/ubuntu-16.04.5-server-arm64.iso
 	fi
 	rm -rf install/filesystem.squashfs
-	7z x ubuntu-16.04.3-server-arm64.iso install/filesystem.squashfs
+	7z x ubuntu-16.04.5-server-arm64.iso install/filesystem.squashfs
 	# The following command requires sudo... sorry
 	sudo unsquashfs -d temp/ install/filesystem.squashfs
 	# Manuall remove the 'x' from the root passwd
