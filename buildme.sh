@@ -27,6 +27,11 @@ export CFLAGS=
 export CPPFLAGS=
 export CXXFLAGS=
 
+# U-Boot config
+export UBOOTDIR=u-boot
+export UBOOT_REPO=https://github.com/MarvellEmbeddedProcessors/u-boot-marvell
+export UBOOT_BRANCH=u-boot-2017.03-armada-17.10
+
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
@@ -38,13 +43,16 @@ export BL33=$ROOTDIR/build/bootloader/u-boot-marvell/u-boot.bin
 
 echo "Building boot loader"
 cd $ROOTDIR
-mkdir -p build/bootloader
-if [[ ! -d $ROOTDIR/build/bootloader/u-boot-marvell ]]; then
+mkdir -vp build/bootloader
+if [[ ! -d $ROOTDIR/build/bootloader/$UBOOTDIR ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone https://github.com/MarvellEmbeddedProcessors/u-boot-marvell
-	cd u-boot-marvell
-	git checkout -b u-boot-2017.03-armada-17.10 origin/u-boot-2017.03-armada-17.10
+	git clone --branch=$UBOOT_BRANCH $UBOOT_REPO $UBOOTDIR
+	cd $UBOOTDIR
 	git am $ROOTDIR/patches/u-boot/*
+else
+        cd $UBOOTDIR
+        git pull
+        git branch -v
 fi
 
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
