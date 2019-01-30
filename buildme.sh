@@ -12,17 +12,25 @@ for i in $TOOLS; do
 	fi
 done
 
+GCCDIR=7.4-2019.02
+GCCVER=7.4.1-2019.02
+
 ROOTDIR=`pwd`
-if [[ ! -d $ROOTDIR/build/toolchain ]]; then
+if [[ ! -d $ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu ]]; then
 	mkdir -p $ROOTDIR/build/toolchain
 	cd $ROOTDIR/build/toolchain
-	wget https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
-	tar -xvf gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
+        wget https://releases.linaro.org/components/toolchain/binaries/$GCCDIR/aarch64-linux-gnu/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu.tar.xz
+        tar -xvf gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu.tar.xz
 fi
 
-export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu/bin
+export CFLAGS=
+export CPPFLAGS=
+export CXXFLAGS=
+
+export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
+
 # ATF specific defines
 export SCP_BL2=$ROOTDIR/build/bootloader/binaries-marvell/mrvl_scp_bl2_8040.img
 export MV_DDR_PATH=$ROOTDIR/build/bootloader/mv-ddr-marvell
