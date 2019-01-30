@@ -32,6 +32,12 @@ export UBOOTDIR=u-boot
 export UBOOT_REPO=https://github.com/MarvellEmbeddedProcessors/u-boot-marvell
 export UBOOT_BRANCH=u-boot-2017.03-armada-17.10
 
+export BINARIES_BRANCH=binaries-marvell-armada-17.10
+
+export ATF_BRANCH=atf-v1.3-armada-17.10
+
+export MVDDR_BRANCH=mv_ddr-armada-17.10
+
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
@@ -57,28 +63,31 @@ fi
 
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone https://github.com/MarvellEmbeddedProcessors/binaries-marvell
-	cd binaries-marvell
-	git checkout -b binaries-marvell-armada-17.10 origin/binaries-marvell-armada-17.10
+	git clone --branch=$BINARIES_BRANCH https://github.com/MarvellEmbeddedProcessors/binaries-marvell
+else
+	cd $ROOTDIR/build/bootloader/binaries-marvell
+        git pull
+        git branch -v
 fi
+
 if [[ ! -d $ROOTDIR/build/bootloader/atf-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone https://github.com/MarvellEmbeddedProcessors/atf-marvell.git
+	git clone --branch=$ATF_BRANCH https://github.com/MarvellEmbeddedProcessors/atf-marvell.git
 	cd atf-marvell
-	git checkout -b atf-v1.3-armada-17.10 origin/atf-v1.3-armada-17.10 
 	git am $ROOTDIR/patches/atf/0001-plat-marvell-a80x0_cf_gt_8k-soft-links-to-mcbin.patch
+else
+	cd $ROOTDIR/build/bootloader/atf-marvell
+	git pull
+	git branch -v
 fi
 
 if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
-	cd mv-ddr-marvell
-	git checkout -b mv_ddr-armada-17.10 origin/mv_ddr-armada-17.10
-fi
-
-if [[ ! -d $ROOTDIR/build/buildroot ]]; then
-	cd $ROOTDIR/build
-	git clone https://github.com/buildroot/buildroot.git
+	git clone --branch=$MVDDR_BRANCH https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+else
+	cd $ROOTDIR/build/bootloader/mv-ddr-marvell
+	git pull
+	git branch -v
 fi
 
 if [[ ! -d $ROOTDIR/build/linux-marvell ]]; then
