@@ -97,15 +97,16 @@ if [[ ! -d $ROOTDIR/build/linux-marvell ]]; then
 	git checkout linux-4.4.52-armada-17.10
 	git am $ROOTDIR/patches/kernel/*
 fi
-if [[ ! -f $ROOTDIR/build/ubuntu-16.04/ext4.part ]]; then
+
+if [[ ! -f $ROOTDIR/build/ubuntu-18.04/ext4.part ]]; then
 	cd $ROOTDIR/build/
-	mkdir -p ubuntu-16.04
-	cd ubuntu-16.04
-	if [[ ! -f ubuntu-16.04.5-server-arm64.iso ]]; then
-		wget http://cdimage.ubuntu.com/releases/16.04.5/release/ubuntu-16.04.5-server-arm64.iso
+	mkdir -p ubuntu-18.04
+	cd ubuntu-18.04
+	if [[ ! -f ubuntu-18.04.1-server-arm64.iso ]]; then
+		wget http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.1-server-arm64.iso
 	fi
 	rm -rf install/filesystem.squashfs
-	7z x ubuntu-16.04.5-server-arm64.iso install/filesystem.squashfs
+	7z x ubuntu-18.04.1-server-arm64.iso install/filesystem.squashfs
 	# The following command requires sudo... sorry
 	sudo unsquashfs -d temp/ install/filesystem.squashfs
 	# Manuall remove the 'x' from the root passwd
@@ -143,15 +144,6 @@ make mvebu_v8_lsp_defconfig
 make -j4
 if [ $? != 0 ]; then
 	echo "Error building kernel"
-	exit -1
-fi
-
-echo "Building buildroot"
-cd $ROOTDIR/build/buildroot/
-cp $ROOTDIR/configs/buildroot.config .config
-# make # For now do not build buildroot.
-if [ $? != 0 ]; then
-	echo "Error building buildroot"
 	exit -1
 fi
 
