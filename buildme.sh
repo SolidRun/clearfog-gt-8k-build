@@ -168,10 +168,17 @@ cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/Image $ROOTDIR/image/boot/
 cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dtb $ROOTDIR/image/boot/
 cat > $ROOTDIR/image/boot/uenv.txt <<EOF
 bootargs=console=ttyS0,115200 root=/dev/sda2 rw
-uenvcmd=fatload scsi 0:1 0x02000000 Image; fatload scsi 0:1 0x01800000 armada-8040-clearfog-gt-8k.dtb; booti 0x02000000 - 0x01800000
+uenvcmd=fatload scsi 0:1 \${kernel_addr} Image; fatload scsi 0:1 \${fdt_addr} armada-8040-clearfog-gt-8k.dtb; booti \${kernel_addr} - \${fdt_addr}
 EOF
 cd $ROOTDIR/build/$KERNELDIR && make INSTALL_MOD_PATH=$ROOTDIR/image/ modules_install
 $SUDO chown -R root:root $ROOTDIR/image/boot $ROOTDIR/image/lib/modules
+
+cd $ROOTDIR/image
+$SUDO for n in patches/rootfs/*; do patch -p1 -i $n; done
+cd $ROOTDIR
+
+echo "Please enter root password for the image."
+$SUDO passwd --root $ROOTDIR/image root
 
 echo "Finishing..."
 $SUDO umount $ROOTDIR/image
@@ -179,4 +186,3 @@ $SUDO losetup -d /dev/loop0
 
 echo "Done."
 cd $ROOTDIR
-

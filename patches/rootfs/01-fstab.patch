@@ -1,0 +1,7 @@
+diff --git a/etc/fstab b/etc/fstab
+new file mode 100644
+index 0000000..1b62a4c
+--- /dev/null
++++ b/etc/fstab
+@@ -0,0 +1 @@
++/dev/root	/	ext4	errors=remount-ro,noatime,nodiratime,discard,x-systemd.growfs	0 1
