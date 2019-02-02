@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 echo "Checking all required tools are installed"
 TOOLS="wget tar git make 7z unsquashfs dd mkfs.ext4 parted dtc"
 
@@ -12,7 +11,7 @@ for i in $TOOLS; do
 	fi
 done
 
-SUDO=`if [ $UID -ne 0 ]; then echo 'sudo'; fi`
+SUDO=$([ "$UID" = "0" ] && echo "" || echo "sudo ")
 
 GCCDIR=7.4-2019.02
 GCCVER=7.4.1-2019.02
@@ -31,14 +30,14 @@ export CXXFLAGS=
 
 # U-Boot config
 export UBOOTDIR=u-boot
-export UBOOT_REPO=https://github.com/MarvellEmbeddedProcessors/u-boot-marvell
-export UBOOT_BRANCH=u-boot-2017.03-armada-17.10
+export UBOOT_REPO=git://git.denx.de/u-boot.git
+export UBOOT_TAG=v2019.01
 
-export BINARIES_BRANCH=binaries-marvell-armada-17.10
+export BINARIES_BRANCH=binaries-marvell-armada-18.12
 
-export ATF_BRANCH=atf-v1.3-armada-17.10
+export ATF_BRANCH=atf-v1.5-armada-18.12
 
-export MVDDR_BRANCH=mv_ddr-armada-17.10
+export MVDDR_BRANCH=mv_ddr-armada-18.12
 
 export KERNELDIR=linux-marvell
 export KERNEL_REPO=https://github.com/MarvellEmbeddedProcessors/linux-marvell
@@ -49,7 +48,7 @@ export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
 
 # ATF specific defines
-export SCP_BL2=$ROOTDIR/build/bootloader/binaries-marvell/mrvl_scp_bl2_8040.img
+export SCP_BL2=$ROOTDIR/build/bootloader/binaries-marvell/mrvl_scp_bl2.img
 export MV_DDR_PATH=$ROOTDIR/build/bootloader/mv-ddr-marvell
 export BL33=$ROOTDIR/build/bootloader/$UBOOTDIR/u-boot.bin
 
@@ -58,47 +57,59 @@ cd $ROOTDIR
 mkdir -vp build/bootloader
 if [[ ! -d $ROOTDIR/build/bootloader/$UBOOTDIR ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone --branch=$UBOOT_BRANCH $UBOOT_REPO $UBOOTDIR
+	git clone $UBOOT_REPO $UBOOTDIR
 	cd $UBOOTDIR
-	git am $ROOTDIR/patches/u-boot/*
+	git fetch --tags
+	git checkout -b $UBOOT_TAG tags/$UBOOT_TAG
 else
         cd $ROOTDIR/build/bootloader/$UBOOTDIR
-        git pull
-        git branch -v
+	git reset
+	git checkout .
+	git clean -fdx
+	git branch -v
 fi
 
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone --branch=$BINARIES_BRANCH https://github.com/MarvellEmbeddedProcessors/binaries-marvell
+	git clone --branch=$BINARIES_BRANCH --depth=1 https://github.com/MarvellEmbeddedProcessors/binaries-marvell
 else
 	cd $ROOTDIR/build/bootloader/binaries-marvell
-        git pull
+	git reset
+	git checkout .
+	git clean -fdx
+        git pull origin $BINARIES_BRANCH
         git branch -v
 fi
 
 if [[ ! -d $ROOTDIR/build/bootloader/atf-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
-	git clone --branch=$ATF_BRANCH https://github.com/MarvellEmbeddedProcessors/atf-marvell.git
+	git clone --branch=$ATF_BRANCH --depth=1 https://github.com/MarvellEmbeddedProcessors/atf-marvell.git
 	cd atf-marvell
-	git am $ROOTDIR/patches/atf/0001-plat-marvell-a80x0_cf_gt_8k-soft-links-to-mcbin.patch
 else
 	cd $ROOTDIR/build/bootloader/atf-marvell
-	git pull
+	git reset
+	git checkout .
+	git clean -fdx
+	git pull origin $ATF_BRANCH
 	git branch -v
 fi
+for n in $ROOTDIR/patches/atf/*; do patch -p1 -i $n; done
 
 if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$MVDDR_BRANCH https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
 else
 	cd $ROOTDIR/build/bootloader/mv-ddr-marvell
-	git pull
+	git reset
+	git checkout .
+	git clean -fdx
+	git pull origin $MVDDR_BRANCH
 	git branch -v
 fi
 
 echo "Building U-Boot"
 cd $ROOTDIR/build/bootloader/$UBOOTDIR
-make solidrun_cf_gt_8k_defconfig
+make clearfog_gt_8k_defconfig
 make
 if [ $? != 0 ]; then
 	echo "Error building u-boot"
@@ -148,41 +159,44 @@ fi
 cd $ROOTDIR
 
 echo "Creating partitions and images"
-dd if=/dev/zero of=$ROOTDIR/image.img bs=1M count=1024
-parted --script $ROOTDIR/image.img mklabel msdos mkpart primary 4096s 100%
+dd if=/dev/zero of=$ROOTDIR/image.img bs=1M count=512
+parted --script -a optimal $ROOTDIR/image.img mklabel msdos mkpart primary 4096s 100% set 1 boot on
 
-echo "Fusin bootloader to the image"
+echo "Fusing bootloader to the image"
 dd if=$ROOTDIR/build/bootloader/atf-marvell/build/a80x0_cf_gt_8k/release/flash-image.bin of=image.img conv=notrunc bs=512 seek=1
 
 echo "Filling image with data"
 mkdir -pv $ROOTDIR/image
-$SUDO losetup -o 4096 /dev/loop0 $ROOTDIR/image.img
-$SUDO mkfs.ext4 /dev/loop0
-$SUDO mount /dev/loop0 $ROOTDIR/image
+${SUDO}losetup -o 4096 /dev/loop0 $ROOTDIR/image.img
+${SUDO}mkfs.ext4 /dev/loop0
+${SUDO}mount /dev/loop0 $ROOTDIR/image
 
 echo "Copying filesystem to the image"
-$SUDO unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.1-server-arm64.squashfs
+${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.1-server-arm64.squashfs
 
 echo "Copying kernel to the image"
 cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/Image $ROOTDIR/image/boot/
 cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dtb $ROOTDIR/image/boot/
-cat > $ROOTDIR/image/boot/uenv.txt <<EOF
-bootargs=console=ttyS0,115200 root=/dev/sda2 rw
-uenvcmd=fatload scsi 0:1 \${kernel_addr} Image; fatload scsi 0:1 \${fdt_addr} armada-8040-clearfog-gt-8k.dtb; booti \${kernel_addr} - \${fdt_addr}
+cat > $ROOTDIR/image/boot.txt <<EOF
+setenv earlyprintk kpti=0 swiotlb=0 console=ttyS0,115200 root=/dev/mmcblk0p1 net.ifnames=0 biosdevname=0 fsck.mode=auto fsck.repair=yes rootwait ro
+load ${devtype} ${devnum} ${kernel_addr_r} /boot/Image
+load ${devtype} ${devnum} ${fdt_addr_r} /boot/armada-8040-clearfog-gt-8k.dtb
+booti ${kernel_addr_r} - ${fdt_addr_r}
 EOF
+mkimage -A arm64 -T script -O linux -d $ROOTDIR/image/boot.txt $ROOTDIR/image/boot.scr
 cd $ROOTDIR/build/$KERNELDIR && make INSTALL_MOD_PATH=$ROOTDIR/image/ modules_install
-$SUDO chown -R root:root $ROOTDIR/image/boot $ROOTDIR/image/lib/modules
+${SUDO}chown -R root:root $ROOTDIR/image/boot $ROOTDIR/image/lib/modules
 
 cd $ROOTDIR/image
-$SUDO for n in patches/rootfs/*; do patch -p1 -i $n; done
+${SUDO}patch -p1 -i $ROOTDIR/patches/rootfs/01-fstab.patch
 cd $ROOTDIR
 
 echo "Please enter root password for the image."
-$SUDO passwd --root $ROOTDIR/image root
+${SUDO}passwd --root $ROOTDIR/image/ root
 
 echo "Finishing..."
-$SUDO umount $ROOTDIR/image
-$SUDO losetup -d /dev/loop0
+${SUDO}umount $ROOTDIR/image
+${SUDO}losetup -d /dev/loop0
 
 echo "Done."
 cd $ROOTDIR
