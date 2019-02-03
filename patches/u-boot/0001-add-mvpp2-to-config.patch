@@ -1,0 +1,10 @@
+diff --git a/configs/clearfog_gt_8k_defconfig b/configs/clearfog_gt_8k_defconfig
+index 42cdbfab61..dd1b44393b 100644
+--- a/configs/clearfog_gt_8k_defconfig
++++ b/configs/clearfog_gt_8k_defconfig
+@@ -72,3 +72,5 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_PHY_MARVELL=y
++CONFIG_MVPP2=y

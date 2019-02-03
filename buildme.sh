@@ -68,6 +68,7 @@ else
 	git clean -fdx
 	git branch -v
 fi
+for n in $ROOTDIR/patches/u-boot/*; do patch -p1 -i $n; done
 
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
