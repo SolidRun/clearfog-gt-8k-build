@@ -33,16 +33,21 @@ export UBOOTDIR=u-boot
 export UBOOT_REPO=git://git.denx.de/u-boot.git
 export UBOOT_TAG=v2019.01
 
+# Marvell binaries
 export BINARIES_BRANCH=binaries-marvell-armada-18.12
 
+# Marvell ATF
 export ATF_BRANCH=atf-v1.5-armada-18.12
 
+# Marvell DDR
 export MVDDR_BRANCH=mv_ddr-armada-18.12
 
-export KERNELDIR=linux-marvell
-export KERNEL_REPO=https://github.com/MarvellEmbeddedProcessors/linux-marvell
-export KERNEL_BRANCH=linux-4.4.52-armada-17.10
+# Linux kernel
+export KERNELDIR=linux
+export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+export KERNEL_BRANCH=linux-4.20.y
 
+# Environment variables
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
@@ -70,6 +75,7 @@ else
 fi
 for n in $ROOTDIR/patches/u-boot/*; do patch -p1 -i $n; done
 
+echo "Downloading Marveel binaries"
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$BINARIES_BRANCH --depth=1 https://github.com/MarvellEmbeddedProcessors/binaries-marvell
@@ -82,6 +88,7 @@ else
         git branch -v
 fi
 
+echo "Downoading Marvell ATF"
 if [[ ! -d $ROOTDIR/build/bootloader/atf-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$ATF_BRANCH --depth=1 https://github.com/MarvellEmbeddedProcessors/atf-marvell.git
@@ -96,6 +103,7 @@ else
 fi
 for n in $ROOTDIR/patches/atf/*; do patch -p1 -i $n; done
 
+echo "Downloading Marvell DDR"
 if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$MVDDR_BRANCH https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
@@ -127,20 +135,19 @@ fi
 
 echo "Downloading Linux kernel"
 if [[ ! -d $ROOTDIR/build/$KERNELDIR ]]; then
-        cd $ROOTDIR/build/
-        git clone --branch=$KERNEL_BRANCH $KERNEL_REPO $KERNELDIR
+	cd $ROOTDIR/build/
+	git clone --branch=$KERNEL_BRANCH $KERNEL_REPO $KERNELDIR
 	cd $KERNELDIR
-        git am $ROOTDIR/patches/kernel/*
 else
 	cd $ROOTDIR/build/$KERNELDIR
 	git pull
 	git branch -v
 fi
 
-echo "Building Kernel"
+echo "Building Linux Kernel"
 cd $ROOTDIR/build/$KERNELDIR
-make mvebu_v8_lsp_defconfig
-./scripts/kconfig/merge_config.sh .config $ROOTDIR/configs/extra.config
+make defconfig
+./scripts/kconfig/merge_config.sh .config $ROOTDIR/configs/kernel.extra.config
 make -j4
 if [ $? != 0 ]; then
 	echo "Error building kernel"
