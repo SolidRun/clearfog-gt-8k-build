@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Checking all required tools are installed"
-TOOLS="wget tar git make 7z unsquashfs dd mkfs.ext4 parted dtc"
+TOOLS="wget tar git make 7z unsquashfs dd mkfs.ext4 parted dtc losetup patch"
 
 for i in $TOOLS; do
 	TOOL_PATH=`which $i`
@@ -170,14 +170,12 @@ echo "Creating partitions and images"
 dd if=/dev/zero of=$ROOTDIR/image.img bs=1M count=512
 parted --script -a optimal $ROOTDIR/image.img mklabel msdos mkpart primary 4096s 100% set 1 boot on
 
-echo "Fusing bootloader to the image"
-dd if=$ROOTDIR/build/bootloader/atf-marvell/build/a80x0_cf_gt_8k/release/flash-image.bin of=image.img conv=notrunc bs=512 seek=1
-
 echo "Filling image with data"
 mkdir -pv $ROOTDIR/image
-${SUDO}losetup -o 4096 /dev/loop0 $ROOTDIR/image.img
-${SUDO}mkfs.ext4 /dev/loop0
-${SUDO}mount /dev/loop0 $ROOTDIR/image
+LOOPDEV=`losetup -f`
+${SUDO}losetup -o 4096 $LOOPDEV $ROOTDIR/image.img
+${SUDO}mkfs.ext4 $LOOPDEV
+${SUDO}mount $LOOPDEV $ROOTDIR/image
 
 echo "Copying filesystem to the image"
 ${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.1-server-arm64.squashfs
@@ -191,20 +189,20 @@ load ${devtype} ${devnum} ${kernel_addr_r} /boot/Image
 load ${devtype} ${devnum} ${fdt_addr_r} /boot/armada-8040-clearfog-gt-8k.dtb
 booti ${kernel_addr_r} - ${fdt_addr_r}
 EOF
-mkimage -A arm64 -T script -O linux -d $ROOTDIR/image/boot.txt $ROOTDIR/image/boot.scr
-cd $ROOTDIR/build/$KERNELDIR && make INSTALL_MOD_PATH=$ROOTDIR/image/ modules_install
+$ROOTDIR/build/bootloader/$UBOOTDIR/tools/mkimage -A arm64 -T script -O linux -d $ROOTDIR/image/boot.txt $ROOTDIR/image/boot.scr
+cd $ROOTDIR/build/$KERNELDIR && make INSTALL_MOD_PATH=$ROOTDIR/image/ INSTALL_MOD_STRIP=1 modules_install
 ${SUDO}chown -R root:root $ROOTDIR/image/boot $ROOTDIR/image/lib/modules
 
 cd $ROOTDIR/image
 ${SUDO}patch -p1 -i $ROOTDIR/patches/rootfs/01-fstab.patch
 cd $ROOTDIR
 
-echo "Please enter root password for the image."
-${SUDO}passwd --root $ROOTDIR/image/ root
-
 echo "Finishing..."
 ${SUDO}umount $ROOTDIR/image
-${SUDO}losetup -d /dev/loop0
+${SUDO}losetup -d $LOOPDEV
+
+echo "Fusing bootloader to the image"
+dd if=$ROOTDIR/build/bootloader/atf-marvell/build/a80x0_cf_gt_8k/release/flash-image.bin of=image.img conv=notrunc bs=512 seek=1
 
 echo "Done."
 cd $ROOTDIR
