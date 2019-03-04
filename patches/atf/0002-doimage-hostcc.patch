@@ -1,0 +1,31 @@
+diff --git a/tools/doimage/Makefile b/tools/doimage/Makefile
+index bc74369..1d29032 100644
+--- a/tools/doimage/Makefile
++++ b/tools/doimage/Makefile
+@@ -25,7 +25,7 @@ CFLAGS += ${DOIMAGE_CC_FLAGS}
+ # could get pulled in from firmware tree.
+ INCLUDE_PATHS = -I.
+ 
+-CC := gcc
++HOSTCC ?= gcc
+ RM := rm -rf
+ 
+ .PHONY: all clean
+@@ -34,14 +34,14 @@ all: ${PROJECT}
+ 
+ ${PROJECT}: ${OBJECTS} Makefile
+ 	@echo "  LD      $@"
+-	${Q}${CC} ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
++	${Q}${HOSTCC} ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
+ 	@echo
+ 	@echo "Built $@ successfully"
+ 	@echo
+ 
+-%.o: %.c %.h Makefile
++%.o: %.c Makefile
+ 	@echo "  CC      $<"
+-	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
++	${Q}${HOSTCC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+ 
+ clean:
+ 	${Q}${RM} ${PROJECT}

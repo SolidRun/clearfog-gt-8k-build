@@ -31,7 +31,7 @@ export CXXFLAGS=
 # U-Boot config
 export UBOOTDIR=u-boot
 export UBOOT_REPO=git://git.denx.de/u-boot.git
-export UBOOT_TAG=v2019.01
+export UBOOT_TAG=v2019.04-rc2
 
 # Marvell binaries
 export BINARIES_BRANCH=binaries-marvell-armada-18.12
@@ -45,7 +45,7 @@ export MVDDR_BRANCH=mv_ddr-armada-18.12
 # Linux kernel
 export KERNELDIR=linux
 export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-export KERNEL_BRANCH=linux-4.20.y
+export KERNEL_BRANCH=linux-5.0.y
 
 # Environment variables
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
@@ -73,9 +73,9 @@ else
 	git clean -fdx
 	git branch -v
 fi
-for n in $ROOTDIR/patches/u-boot/*; do patch -p1 -i $n; done
+for n in $ROOTDIR/patches/u-boot/*.patch; do patch -p1 -i $n; done
 
-echo "Downloading Marveel binaries"
+echo "Downloading Marvell binaries"
 if [[ ! -d $ROOTDIR/build/bootloader/binaries-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$BINARIES_BRANCH --depth=1 https://github.com/MarvellEmbeddedProcessors/binaries-marvell
@@ -155,13 +155,13 @@ if [ $? != 0 ]; then
 fi
 
 echo "Downloading Ubuntu Image"
-if [[ ! -f $ROOTDIR/build/ubuntu-18.04.1-server-arm64.squashfs ]]; then
+if [[ ! -f $ROOTDIR/build/ubuntu-18.04.2-server-arm64.squashfs ]]; then
         cd $ROOTDIR/build
-        if [[ ! -f ubuntu-18.04.1-server-arm64.iso ]]; then
-                wget http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.1-server-arm64.iso
+        if [[ ! -f ubuntu-18.04.2-server-arm64.iso ]]; then
+                wget http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-arm64.iso
         fi
-        7z x ubuntu-18.04.1-server-arm64.iso install/filesystem.squashfs
-	mv install/filesystem.squashfs ubuntu-18.04.1-server-arm64.squashfs
+        7z x ubuntu-18.04.2-server-arm64.iso install/filesystem.squashfs
+	mv install/filesystem.squashfs ubuntu-18.04.2-server-arm64.squashfs
 fi
 
 cd $ROOTDIR
@@ -178,7 +178,7 @@ ${SUDO}mkfs.ext4 $LOOPDEV
 ${SUDO}mount $LOOPDEV $ROOTDIR/image
 
 echo "Copying filesystem to the image"
-${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.1-server-arm64.squashfs
+${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.2-server-arm64.squashfs
 
 echo "Copying kernel to the image"
 cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/Image $ROOTDIR/image/boot/
@@ -206,3 +206,4 @@ dd if=$ROOTDIR/build/bootloader/atf-marvell/build/a80x0_cf_gt_8k/release/flash-i
 
 echo "Done."
 cd $ROOTDIR
+
