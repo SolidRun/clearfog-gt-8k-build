@@ -1,0 +1,9 @@
+diff --git a/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf b/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf
+new file mode 100644
+index 0000000..1b62a4c
+--- /dev/null
++++ b/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf
+@@ -0,0 +3 @@
++[Service]
++ExecStart=
++ExecStart=-/sbin/agetty --noclear --autologin root -s %I 115200,38400,9600 $TERM
