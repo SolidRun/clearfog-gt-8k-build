@@ -101,7 +101,7 @@ else
 	git pull origin $ATF_BRANCH
 	git branch -v
 fi
-for n in $ROOTDIR/patches/atf/*; do patch -p1 -i $n; done
+for n in $ROOTDIR/patches/atf/*.patch; do patch -p1 -i $n; done
 
 echo "Downloading Marvell DDR"
 if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
@@ -173,7 +173,7 @@ parted --script -a optimal $ROOTDIR/image.img mklabel msdos mkpart primary 4096s
 echo "Filling image with data"
 mkdir -pv $ROOTDIR/image
 LOOPDEV=`losetup -f`
-${SUDO}losetup -o 4096 $LOOPDEV $ROOTDIR/image.img
+${SUDO}losetup -o 2097152 $LOOPDEV $ROOTDIR/image.img
 ${SUDO}mkfs.ext4 $LOOPDEV
 ${SUDO}mount $LOOPDEV $ROOTDIR/image
 
@@ -195,6 +195,7 @@ ${SUDO}chown -R root:root $ROOTDIR/image/boot $ROOTDIR/image/lib/modules
 
 cd $ROOTDIR/image
 ${SUDO}patch -p1 -i $ROOTDIR/patches/rootfs/01-fstab.patch
+${SUDO}patch -p1 -i $ROOTDIR/patches/rootfs/02-autologin-on-serial-console.patch
 cd $ROOTDIR
 
 echo "Finishing..."
