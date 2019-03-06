@@ -31,7 +31,7 @@ export CXXFLAGS=
 # U-Boot config
 export UBOOTDIR=u-boot
 export UBOOT_REPO=git://git.denx.de/u-boot.git
-export UBOOT_TAG=v2019.04-rc2
+export UBOOT_TAG=v2019.04-rc3
 
 # Marvell binaries
 export BINARIES_BRANCH=binaries-marvell-armada-18.12
@@ -127,7 +127,7 @@ fi
 
 echo "Building ATF - MV_DDR_PATH at $MV_DDR_PATH, BL33 at $BL33"
 cd $ROOTDIR/build/bootloader/atf-marvell
-make USE_COHERENT_MEM=0 LOG_LEVEL=20 MV_DDR_PATH=$MV_DDR_PATH PLAT=a80x0_cf_gt_8k all fip
+make USE_COHERENT_MEM=0 LOG_LEVEL=20 WORKAROUND_CVE_2018_3639=0 MV_DDR_PATH=$MV_DDR_PATH PLAT=a80x0_cf_gt_8k all fip
 if [ $? != 0 ]; then
 	echo "Error building ATF"
 	exit -1
@@ -140,9 +140,13 @@ if [[ ! -d $ROOTDIR/build/$KERNELDIR ]]; then
 	cd $KERNELDIR
 else
 	cd $ROOTDIR/build/$KERNELDIR
-	git pull
+	git reset 
+	git checkout .
+	git clean -fdx
+	git pull origin $KERNEL_BRANCH
 	git branch -v
 fi
+for n in $ROOTDIR/patches/kernel/*.patch; do patch -p1 -i $n; done
 
 echo "Building Linux Kernel"
 cd $ROOTDIR/build/$KERNELDIR
