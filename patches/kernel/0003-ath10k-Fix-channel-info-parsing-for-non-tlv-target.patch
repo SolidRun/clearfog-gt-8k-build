@@ -1,0 +1,59 @@
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index 582fb11..a826acb 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -810,7 +810,7 @@ static int ath10k_wmi_tlv_op_pull_ch_info_ev(struct ath10k *ar,
+ 					     struct wmi_ch_info_ev_arg *arg)
+ {
+ 	const void **tb;
+-	const struct wmi_chan_info_event *ev;
++	const struct wmi_tlv_chan_info_event *ev;
+ 	int ret;
+ 
+ 	tb = ath10k_wmi_tlv_parse_alloc(ar, skb->data, skb->len, GFP_ATOMIC);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.h b/drivers/net/wireless/ath/ath10k/wmi-tlv.h
+index 65e6aa5..4bdd655 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.h
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.h
+@@ -1607,6 +1607,22 @@ struct chan_info_params {
+ 
+ #define WMI_TLV_FLAG_MGMT_BUNDLE_TX_COMPL	BIT(9)
+ 
++struct wmi_tlv_chan_info_event {
++	__le32 err_code;
++	__le32 freq;
++	__le32 cmd_flags;
++	__le32 noise_floor;
++	__le32 rx_clear_count;
++	__le32 cycle_count;
++	__le32 chan_tx_pwr_range;
++	__le32 chan_tx_pwr_tp;
++	__le32 rx_frame_count;
++	__le32 my_bss_rx_cycle_count;
++	__le32 rx_11b_mode_data_duration;
++	__le32 tx_frame_cnt;
++	__le32 mac_clk_mhz;
++} __packed;
++
+ struct wmi_tlv_mgmt_tx_compl_ev {
+ 	__le32 desc_id;
+ 	__le32 status;
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index e1c40bb..d188a2c 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6523,14 +6523,6 @@ struct wmi_chan_info_event {
+ 	__le32 noise_floor;
+ 	__le32 rx_clear_count;
+ 	__le32 cycle_count;
+-	__le32 chan_tx_pwr_range;
+-	__le32 chan_tx_pwr_tp;
+-	__le32 rx_frame_count;
+-	__le32 my_bss_rx_cycle_count;
+-	__le32 rx_11b_mode_data_duration;
+-	__le32 tx_frame_cnt;
+-	__le32 mac_clk_mhz;
+-
+ } __packed;
+ 
+ struct wmi_10_4_chan_info_event {
