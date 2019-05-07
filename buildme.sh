@@ -45,7 +45,7 @@ export MVDDR_BRANCH=mv_ddr-armada-18.12
 # Linux kernel
 export KERNELDIR=linux
 export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-export KERNEL_BRANCH=linux-5.0.y
+export KERNEL_BRANCH=linux-5.1.y
 
 # Environment variables
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
@@ -56,6 +56,9 @@ export ARCH=arm64
 export SCP_BL2=$ROOTDIR/build/bootloader/binaries-marvell/mrvl_scp_bl2.img
 export MV_DDR_PATH=$ROOTDIR/build/bootloader/mv-ddr-marvell
 export BL33=$ROOTDIR/build/bootloader/$UBOOTDIR/u-boot.bin
+
+# Ubuntu version
+export UBUNTU_VER=18.04.2
 
 echo "Downloading boot loader"
 cd $ROOTDIR
@@ -159,13 +162,13 @@ if [ $? != 0 ]; then
 fi
 
 echo "Downloading Ubuntu Image"
-if [[ ! -f $ROOTDIR/build/ubuntu-18.04.2-server-arm64.squashfs ]]; then
+if [[ ! -f $ROOTDIR/build/ubuntu-$UBUNTU_VER-server-arm64.squashfs ]]; then
         cd $ROOTDIR/build
-        if [[ ! -f ubuntu-18.04.2-server-arm64.iso ]]; then
-                wget http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-arm64.iso
+        if [[ ! -f ubuntu-$UBUNTU_VER-server-arm64.iso ]]; then
+                wget http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-$UBUNTU_VER-server-arm64.iso
         fi
-        7z x ubuntu-18.04.2-server-arm64.iso install/filesystem.squashfs
-	mv install/filesystem.squashfs ubuntu-18.04.2-server-arm64.squashfs
+        7z x ubuntu-$UBUNTU_VER-server-arm64.iso install/filesystem.squashfs
+	mv install/filesystem.squashfs ubuntu-$UBUNTU_VER-server-arm64.squashfs
 fi
 
 cd $ROOTDIR
@@ -182,7 +185,7 @@ ${SUDO}mkfs.ext4 $LOOPDEV
 ${SUDO}mount $LOOPDEV $ROOTDIR/image
 
 echo "Copying filesystem to the image"
-${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-18.04.2-server-arm64.squashfs
+${SUDO}unsquashfs -d $ROOTDIR/image/ -f $ROOTDIR/build/ubuntu-$UBUNTU_VER-server-arm64.squashfs
 
 echo "Copying kernel to the image"
 cp -av $ROOTDIR/build/$KERNELDIR/arch/arm64/boot/Image $ROOTDIR/image/boot/

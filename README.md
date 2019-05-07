@@ -2,17 +2,17 @@
 
 This is unofficial fork of official SolidRun repo, updating everything possible to latest versions, and making hardware work as it should.
 
-- U-boot 2019.04-rc3
-- Linux kernel 5.0.0
+- U-boot 2019.04
+- Linux kernel 5.1.x
 - Ubuntu 18.04.2
 
 Tested and working hardware:
 
-- Topaz switch
-- WLAN port
-- back side PCIe that implements USB lanes with mini pcie cards that use USB
-- next to DRAM slot PCIe implementing PCIe, including Compex Atheros ath10k cards
-- next PCIe slot implementing SATA mini PCIe mode with mini PCIe sata cards
+- Topaz switch (four blue switching ports)
+- WLAN port (yellow port)
+- back side PCIe slot, that implements mini PCIe USB lanes
+- next to DRAM PCIe slot, including stable support of Compex Atheros ath10k cards
+- next to above one PCIe slot, implementing SATA mini PCIe lanes
 - SPI memory
 - internal eMMC memory
 - SD card slot
