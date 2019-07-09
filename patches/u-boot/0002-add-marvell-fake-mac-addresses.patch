@@ -1,0 +1,28 @@
+diff --git a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+index cdff44aca5..a034e5402d 100644
+--- a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
++++ b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+@@ -188,6 +188,7 @@
+ &cpm_eth0 {
+         status = "okay";
+         phy-mode = "sfi";
++	local-mac-address = [02 50 43 11 22 f1];
+ };
+ 
+ &cps_sata0 {
+@@ -309,6 +310,7 @@
+ /* 1G SGMII */
+ &cps_eth1 {
+ 	status = "okay";
++	local-mac-address = [02 50 43 11 22 f2];
+ 	phy-mode = "sgmii";
+ 	phy = <&phy0>;
+ 	phy-reset-gpios = <&cpm_gpio1 11 GPIO_ACTIVE_LOW>;
+@@ -317,6 +319,7 @@
+ /* 2.5G to Topaz switch */
+ &cps_eth2 {
+ 	status = "okay";
++	local-mac-address = [02 50 43 11 22 f3];
+ 	phy-mode = "sgmii";
+ 	phy-speed = <2500>;
+ 	phy-reset-gpios = <&cps_gpio0 24 GPIO_ACTIVE_LOW>;

@@ -31,7 +31,7 @@ export CXXFLAGS=
 # U-Boot config
 export UBOOTDIR=u-boot
 export UBOOT_REPO=git://git.denx.de/u-boot.git
-export UBOOT_TAG=v2019.04
+export UBOOT_TAG=v2019.07
 
 # Marvell binaries
 export BINARIES_BRANCH=binaries-marvell-armada-18.12
@@ -45,7 +45,7 @@ export MVDDR_BRANCH=mv_ddr-armada-18.12
 # Linux kernel
 export KERNELDIR=linux
 export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-export KERNEL_BRANCH=linux-5.1.y
+export KERNEL_BRANCH=linux-5.2.y
 
 # Environment variables
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
