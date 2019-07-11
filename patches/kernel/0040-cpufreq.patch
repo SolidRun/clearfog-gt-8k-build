@@ -1,8 +1,19 @@
 diff --git a/Documentation/devicetree/bindings/arm/marvell/ap806-system-controller.txt b/Documentation/devicetree/bindings/arm/marvell/ap806-system-controller.txt
-index 7b8b8eb0191f..a65d3e9ff915 100644
+index 7b8b8eb0191f..4f21c1024073 100644
 --- a/Documentation/devicetree/bindings/arm/marvell/ap806-system-controller.txt
 +++ b/Documentation/devicetree/bindings/arm/marvell/ap806-system-controller.txt
-@@ -143,3 +143,29 @@ ap_syscon1: system-controller@6f8000 {
+@@ -21,8 +21,8 @@ Clocks:
+ The Device Tree node representing the AP806 system controller provides
+ a number of clocks:
+ 
+- - 0: clock of CPU cluster 0
+- - 1: clock of CPU cluster 1
++ - 0: reference clock of CPU cluster 0
++ - 1: reference clock of CPU cluster 1
+  - 2: fixed PLL at 1200 Mhz
+  - 3: MSS clock, derived from the fixed PLL
+ 
+@@ -143,3 +143,30 @@ ap_syscon1: system-controller@6f8000 {
  		#thermal-sensor-cells = <1>;
  	};
  };
@@ -16,19 +27,20 @@ index 7b8b8eb0191f..a65d3e9ff915 100644
 +Required properties:
 +- compatible: must be  "marvell,ap806-cpu-clock";
 +- #clock-cells : should be set to 1.
-+- clocks : shall be the input parents clock phandle for the clock.
-+- reg: register range associated the cluster clocks, offset must be 0
-+  and the size have to be the whole size of the system-controller
 +
++- clocks : shall be the input parent clock(s) phandle for the clock
++           (one per cluster)
++
++- reg: register range associated with the cluster clocks
 +
 +ap_syscon1: system-controller@6f8000 {
-+	compatible = "syscon", "simple-mfd";
++	compatible = "marvell,armada-ap806-syscon1", "syscon", "simple-mfd";
 +	reg = <0x6f8000 0x1000>;
 +
-+	cpu_clk: clock-cpu@0 {
++	cpu_clk: clock-cpu@278 {
 +		compatible = "marvell,ap806-cpu-clock";
 +		clocks = <&ap_clk 0>, <&ap_clk 1>;
 +		#clock-cells = <1>;
-+		reg = <0x0 0x1000>;
++		reg = <0x278 0xa30>;
 +	};
 +};

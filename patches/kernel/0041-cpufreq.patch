@@ -171,7 +171,7 @@ index 000000000000..810af1e5dfa4
 +			const char *name);
 +#endif
 diff --git a/drivers/clk/mvebu/cp110-system-controller.c b/drivers/clk/mvebu/cp110-system-controller.c
-index 9235a331b588..243ad8bcbb69 100644
+index b6de283f45e3..808463276145 100644
 --- a/drivers/clk/mvebu/cp110-system-controller.c
 +++ b/drivers/clk/mvebu/cp110-system-controller.c
 @@ -26,11 +26,11 @@

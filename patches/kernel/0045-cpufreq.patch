@@ -32,18 +32,18 @@ index 2baafe12ebd4..472211159979 100644
  	};
  };
 diff --git a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
-index 91dad7e4ee59..2db27c89427b 100644
+index 91dad7e4ee59..fca6536494b3 100644
 --- a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
 +++ b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
 @@ -280,6 +280,13 @@
  				#address-cells = <1>;
  				#size-cells = <1>;
  
-+				cpu_clk: clock-cpu@0 {
++				cpu_clk: clock-cpu@278 {
 +					compatible = "marvell,ap806-cpu-clock";
 +					clocks = <&ap_clk 0>, <&ap_clk 1>;
 +					#clock-cells = <1>;
-+					reg = <0x0 0x1000>;
++					reg = <0x278 0xa30>;
 +				};
 +
  				ap_thermal: thermal-sensor@80 {
