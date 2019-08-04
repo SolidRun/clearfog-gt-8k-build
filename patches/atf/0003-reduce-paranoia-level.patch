@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 85b8628..7e7949f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -158,7 +158,7 @@ ASFLAGS_aarch32		=	$(march32-directive)
+ ASFLAGS_aarch64		=	-march=armv8-a
+ 
+ CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
+-				-Wmissing-include-dirs -Werror
++				-Wmissing-include-dirs
+ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
+ 				-D__ASSEMBLY__ -ffreestanding 			\
+ 				-Wa,--fatal-warnings

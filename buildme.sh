@@ -13,15 +13,12 @@ done
 
 SUDO=$([ "$UID" = "0" ] && echo "" || echo "sudo ")
 
-GCCDIR=7.4-2019.02
-GCCVER=7.4.1-2019.02
-
 ROOTDIR=`pwd`
-if [[ ! -d $ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu ]]; then
+if [[ ! -d $ROOTDIR/build/toolchain/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu ]]; then
 	mkdir -vp $ROOTDIR/build/toolchain
 	cd $ROOTDIR/build/toolchain
-        wget https://releases.linaro.org/components/toolchain/binaries/$GCCDIR/aarch64-linux-gnu/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu.tar.xz
-        tar -xvf gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu.tar.xz
+	wget https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz
+        tar -xvf gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz
 fi
 
 export CFLAGS=
@@ -48,7 +45,7 @@ export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.
 export KERNEL_BRANCH=linux-5.2.y
 
 # Environment variables
-export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-linaro-$GCCVER-x86_64_aarch64-linux-gnu/bin
+export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu/bin
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
 
@@ -118,6 +115,7 @@ else
 	git pull origin $MVDDR_BRANCH
 	git branch -v
 fi
+for n in $ROOTDIR/patches/mv-ddr/*.patch; do patch -p1 -i $n; done
 
 echo "Building U-Boot"
 cd $ROOTDIR/build/bootloader/$UBOOTDIR
