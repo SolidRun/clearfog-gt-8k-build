@@ -107,6 +107,7 @@ echo "Downloading Marvell DDR"
 if [[ ! -d $ROOTDIR/build/bootloader/mv-ddr-marvell ]]; then
 	cd $ROOTDIR/build/bootloader
 	git clone --branch=$MVDDR_BRANCH https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+	cd mv-ddr-marvell
 else
 	cd $ROOTDIR/build/bootloader/mv-ddr-marvell
 	git reset
