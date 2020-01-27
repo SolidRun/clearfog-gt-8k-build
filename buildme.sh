@@ -28,7 +28,7 @@ export CXXFLAGS=
 # U-Boot config
 export UBOOTDIR=u-boot
 export UBOOT_REPO=git://git.denx.de/u-boot.git
-export UBOOT_TAG=v2019.07
+export UBOOT_TAG=v2020.01
 
 # Marvell binaries
 export BINARIES_BRANCH=binaries-marvell-armada-18.12
@@ -42,7 +42,7 @@ export MVDDR_BRANCH=mv_ddr-armada-18.12
 # Linux kernel
 export KERNELDIR=linux
 export KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-export KERNEL_BRANCH=linux-5.2.y
+export KERNEL_BRANCH=linux-5.5.y
 
 # Environment variables
 export PATH=$PATH:$ROOTDIR/build/toolchain/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu/bin
@@ -55,7 +55,7 @@ export MV_DDR_PATH=$ROOTDIR/build/bootloader/mv-ddr-marvell
 export BL33=$ROOTDIR/build/bootloader/$UBOOTDIR/u-boot.bin
 
 # Ubuntu version
-export UBUNTU_VER=18.04.2
+export UBUNTU_VER=18.04.3
 
 echo "Downloading boot loader"
 cd $ROOTDIR

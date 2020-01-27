@@ -16,7 +16,7 @@ Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/drivers/pci/controller/dwc/pcie-armada8k.c b/drivers/pci/controller/dwc/pcie-armada8k.c
-index 0c389a30ef5d3..b171b6bc15c84 100644
+index 3d55dc78d999..e17bdbb7f627 100644
 --- a/drivers/pci/controller/dwc/pcie-armada8k.c
 +++ b/drivers/pci/controller/dwc/pcie-armada8k.c
 @@ -22,6 +22,7 @@
@@ -27,15 +27,15 @@ index 0c389a30ef5d3..b171b6bc15c84 100644
  
  #include "pcie-designware.h"
  
-@@ -29,6 +30,7 @@ struct armada8k_pcie {
- 	struct dw_pcie *pci;
- 	struct clk *clk;
+@@ -33,6 +34,7 @@ struct armada8k_pcie {
  	struct clk *clk_reg;
+ 	struct phy *phy[ARMADA8K_PCIE_MAX_LANES];
+ 	unsigned int phy_count;
 +	struct gpio_desc *reset_gpio;
  };
  
  #define PCIE_VENDOR_REGS_OFFSET		0x8000
-@@ -137,6 +139,12 @@ static int armada8k_pcie_host_init(struct pcie_port *pp)
+@@ -211,6 +213,12 @@ static int armada8k_pcie_host_init(struct pcie_port *pp)
  	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
  	struct armada8k_pcie *pcie = to_armada8k_pcie(pci);
  
@@ -48,9 +48,9 @@ index 0c389a30ef5d3..b171b6bc15c84 100644
  	dw_pcie_setup_rc(pp);
  	armada8k_pcie_establish_link(pcie);
  
-@@ -249,6 +257,14 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
+@@ -327,6 +335,14 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
+ 	if (ret)
  		goto fail_clkreg;
- 	}
  
 +	/* Get reset gpio signal and hold asserted (logically high) */
 +	pcie->reset_gpio = devm_gpiod_get_optional(dev, "reset",

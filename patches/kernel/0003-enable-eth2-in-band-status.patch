@@ -1,0 +1,13 @@
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
+index bd881497b872..a211a046b2f2 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
++++ b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
+@@ -408,6 +408,8 @@
+ 				reg = <5>;
+ 				label = "cpu";
+ 				ethernet = <&cp1_eth2>;
++				phy-mode = "2500base-x";
++				managed = "in-band-status";
+ 			};
+ 		};
+ 
